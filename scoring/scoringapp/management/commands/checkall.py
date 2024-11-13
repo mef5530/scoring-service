@@ -1,5 +1,3 @@
-# scoringapp/management/commands/checkall.py
-
 from django.core.management.base import BaseCommand
 from django.db import connections
 import requests
@@ -15,6 +13,7 @@ import dns.resolver
 import ping3
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
+import subprocess
 
 from scoringapp.models import TeamService, Check
 
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 def check_html(host, path, timeout=2) -> (bool, str):
     try:
         response = requests.get(f'http://{host}/{path}', timeout=timeout)
-        if response.status_code == 200:
+        if response.status_code == 200 or response.status_code == 404 or response.status_code == 302:
             return (True, 'up')
         else:
             return (False, f'response code = {response.status_code}')
@@ -92,16 +91,22 @@ def check_dns(host, timeout=2) -> (bool, str):
 
 def check_icmp(host, timeout=1) -> (bool, str):
     try:
-        delay = ping3.ping(host, timeout=timeout)
-        if delay is not None:
+        command = ['ping', '-c', '1', '-W', str(timeout), host]
+        output = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
+        if output.returncode == 0:
             return (True, 'up')
         else:
-            return (False, 'no response')
+            return (False, f'no response: {output.stderr.strip()}')
     except Exception as e:
         return (False, f'ping failed with: {e}')
 
 class Command(BaseCommand):
-    help = 'Check all team services and record their status.'
+    help = 'check the services'
 
     def handle(self, *args, **kwargs):
         start_time = time.time()
@@ -116,10 +121,10 @@ class Command(BaseCommand):
                 try:
                     future.result()
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR(f'Error checking {team_service.uri}: {e}'))
+                    logging.error(f'Error checking {team_service.uri}: {e}')
 
         total_time = time.time() - start_time
-        self.stdout.write(f"Total execution time: {total_time:.2f} seconds.")
+        logging.debug(f"Total execution time: {total_time:.2f} seconds.")
 
     def perform_check(self, team_service):
         db = connections['default']
@@ -128,7 +133,7 @@ class Command(BaseCommand):
         start_time = time.time()
         toks = team_service.uri.split('$')
         if len(toks) < 2:
-            self.stdout.write(self.style.ERROR(f'Invalid URI format for team_service id {team_service.id}'))
+            logging.error(f'Invalid URI format for team_service id {team_service.id}')
             return
         service_type = toks[0]
         host = toks[1]
@@ -139,7 +144,7 @@ class Command(BaseCommand):
         try:
             if service_type == 'http':
                 if len(toks) < 3:
-                    self.stdout.write(self.style.ERROR(f'Invalid URI format for HTTP service, missing path for team_service id {team_service.id}'))
+                    logging.error(f'Invalid URI format for HTTP service, missing path for team_service id {team_service.id}')
                     return
                 path = toks[2]
                 is_up, status = check_html(host=host, path=path)
@@ -156,7 +161,7 @@ class Command(BaseCommand):
             elif service_type == 'icmp':
                 is_up, status = check_icmp(host=host)
             else:
-                self.stdout.write(self.style.ERROR(f'Unknown service type "{service_type}" for team_service id {team_service.id}'))
+                logging.error(f'Unknown service type "{service_type}" for team_service id {team_service.id}')
                 return
 
             check = Check(
@@ -170,11 +175,11 @@ class Command(BaseCommand):
             TeamService.objects.filter(id=team_service.id).update(newest_check=check)
 
             if is_up:
-                self.stdout.write(self.style.SUCCESS(f'Service {service_type} on {host} is up.'))
+                logging.info(f'Service {service_type} on {host} is up.')
             else:
-                self.stdout.write(self.style.WARNING(f'Service {service_type} on {host} is down: {status}'))
+                logging.info(f'Service {service_type} on {host} is down: {status}')
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Error checking service {service_type} on {host}: {e}'))
+            logging.error(f'Error checking service {service_type} on {host}: {e}')
         finally:
             elapsed_time = time.time() - start_time
-            self.stdout.write(f"Check for service {service_type} on {host} took {elapsed_time:.2f} seconds.")
+            logging.debug(f"Check for service {service_type} on {host} took {elapsed_time:.2f} seconds.")

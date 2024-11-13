@@ -2,6 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
 from .models import Service, Team, Competition, TeamService
 from .serializers import TeamSerializer, ServiceSerializer, TeamServiceSerializer
@@ -25,7 +27,6 @@ class TeamServiceListView(ListView):
         for service in Service.objects.all():
             this_service = []
             for team in context['teams']:
-                print(team, service)
                 team_service = TeamService.objects.filter(team=team, service=service).first()
                 this_service.append(team_service)
             context['services'].append((service, this_service))
@@ -112,3 +113,17 @@ class ServiceViewSet(viewsets.ModelViewSet):
 class TeamServiceViewSet(viewsets.ModelViewSet):
     queryset = TeamService.objects.all()
     serializer_class = TeamServiceSerializer
+
+@require_POST
+def start_comp(request):
+    comp = Competition.objects.get_or_create(id=1)[0]
+    comp.paused = False
+    comp.save()
+    return JsonResponse({'status': 'success'})
+
+@require_POST
+def stop_comp(request):
+    comp = Competition.objects.get_or_create(id=1)[0]
+    comp.paused = True
+    comp.save()
+    return JsonResponse({'status': 'success'})

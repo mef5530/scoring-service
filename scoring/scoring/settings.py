@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '[{asctime}] {levelname} [{name}:{lineno}] {message}',
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'scoringapp',
     'django_apscheduler',
+    'django_ajax'
 ]
 
 MIDDLEWARE = [

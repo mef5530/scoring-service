@@ -2,8 +2,10 @@
 <head>
     <title>ScoreMax</title>
     {% load django_bootstrap5 %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+
     <style>
         body {
             background-image: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic.independent.co.uk%2F2023%2F08%2F02%2F09%2Fnewspress-collage-ji3ryiocq-1690914726763.jpg&f=1&nofb=1&ipt=4ed4dbc2986b3d458023c7443c3a887f0e7f9d3728e42aaa2ddf0bceca3df310&ipo=images');
@@ -29,4 +31,6 @@
         {% block content %}
         {% endblock %}
     </div>
+    {% block javascript %}
+    {% endblock %}
 </body>

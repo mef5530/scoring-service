@@ -5,6 +5,7 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from django.core.management import call_command
+from .models import Competition
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,11 @@ def start():
             logger.info("Scheduler started.")
 
 def check_all_services():
-    logger.info("Executing check_all_services job...")
-    try:
-        call_command('checkall')
-    except Exception as e:
-        logger.exception(f"Error executing checkall command: {e}")
+    if Competition.objects.all().filter(id=1).first().paused == False:
+        logger.info("Executing check_all_services job...")
+        try:
+            call_command('checkall')
+        except Exception as e:
+            logger.exception(f"Error executing checkall command: {e}")
+    else:
+        logger.info("Aborting, comp is paused")

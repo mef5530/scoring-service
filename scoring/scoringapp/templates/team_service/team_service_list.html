@@ -3,15 +3,17 @@
 {% block content %}
 <div class="mr-5 p-5">
     <h1>Zoo: Free the animals!</h1>
+    <button class="start-comp-btn btn btn-primary">start comp</button>
+    <button class="stop-comp-btn btn btn-danger">stop comp</button>
     <table class="table table-bordered border-danger">
         <thead>
             <tr>
-                <th scope="col">
+                <th scope="col" class="col-1">
                     Service / Team
                     <a href="{% url 'team-create' %}" class="btn btn-secondary">create</a>
                 </th>
                 {% for team in teams %}
-                <th scope="row">
+                <th scope="col" class="col-5">
                     {{ team.name }}
                     <a href="{% url 'team-update' pk=team.id %}" class="btn btn-secondary">edit</a>
                     <a href="{% url 'team-delete' pk=team.id %}" class="btn btn-danger">delete</a>
@@ -31,20 +33,20 @@
                     {% if team_service and team_service.newest_check %}
                         {% if team_service.newest_check.is_up %}
                             <td style="background-color: rgba(0,255,0, 0.5) !important;">
-                                <span class="badge badge-success" style="color: black !important;">Up</span>
+                                <p>Up</p>
                                 <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
                                 <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
                             </td>
                         {% else %}
                             <td style="background-color: rgba(255,0,0, 0.5) !important;">
-                                <span class="badge badge-danger" style="color: black !important;">Down: {{ team_service.newest_check.status }}</span>
+                                <p>Down: {{ team_service.newest_check.status }}</p>
                                 <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
                                 <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
                             </td>
                         {% endif %}
                     {% else %}
                         <td style="background-color: rgba(255,255,0, 0.5) !important;">
-                            <div class="badge badge-warning" style="color: black !important;">N/A</div>
+                            <p>N/A</p>
                             <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
                             <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
                         </td>
@@ -77,3 +79,31 @@
     </table>
 </div>
 {% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        $('.start-comp-btn').click(function() {
+            $.ajax({
+                url: '{% url 'start-comp' %}',
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }
+            });
+        });
+        $('.stop-comp-btn').click(function() {
+            $.ajax({
+                url: '{% url 'stop-comp' %}',
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }
+            });
+        });
+    });
+    setInterval(function(){
+        window.location.reload();
+    }, 20000);
+</script>
+{%endblock%}
