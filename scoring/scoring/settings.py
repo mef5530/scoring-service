@@ -27,7 +27,28 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} [{name}:{lineno}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '': {  # Root logger
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +60,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_bootstrap5',
-    'scoringapp'
+    'scoringapp',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -76,12 +98,24 @@ WSGI_APPLICATION = 'scoring.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'OPTIONS': {
+            'timeout': 20,
+        },
+    },
+    'scheduler': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'scheduler_db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,
+        },
+    },
 }
+
 
 
 # Password validation
