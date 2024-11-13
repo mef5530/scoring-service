@@ -122,16 +122,19 @@ class Command(BaseCommand):
         start_time = time.time()
         team_services = TeamService.objects.all()
 
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            futures = {
-                executor.submit(self.perform_check, team_service): team_service for team_service in team_services
-            }
-            for future in as_completed(futures):
-                team_service = futures[future]
-                try:
-                    future.result()
-                except Exception as e:
-                    logging.error(f'Error checking {team_service.uri}: {e}')
+        for team_service in team_services:
+            self.perform_check(team_service)
+
+        # with ThreadPoolExecutor(max_workers=20) as executor:
+        #     futures = {
+        #         executor.submit(self.perform_check, team_service): team_service for team_service in team_services
+        #     }
+        #     for future in as_completed(futures):
+        #         team_service = futures[future]
+        #         try:
+        #             future.result()
+        #         except Exception as e:
+        #             logging.error(f'Error checking {team_service.uri}: {e}')
 
         total_time = time.time() - start_time
         logging.debug(f"Total execution time: {total_time:.2f} seconds.")
