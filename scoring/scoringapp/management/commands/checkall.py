@@ -15,13 +15,23 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 import subprocess
 
-from scoringapp.models import TeamService, Check
+from scoringapp.models import TeamService, Check, Team
 
 logger = logging.getLogger(__name__)
 
-def check_html(host, path, timeout=2) -> (bool, str):
+def check_http(host, path, timeout=2) -> (bool, str):
     try:
         response = requests.get(f'http://{host}/{path}', timeout=timeout)
+        if response.status_code == 200 or response.status_code == 404 or response.status_code == 302:
+            return (True, 'up')
+        else:
+            return (False, f'response code = {response.status_code}')
+    except Exception as e:
+        return (False, f'request failed with: {e}')
+
+def check_https(host, path, timeout=2) -> (bool, str):
+    try:
+        response = requests.get(f'https://{host}/{path}', timeout=timeout)
         if response.status_code == 200 or response.status_code == 404 or response.status_code == 302:
             return (True, 'up')
         else:
@@ -147,7 +157,13 @@ class Command(BaseCommand):
                     logging.error(f'Invalid URI format for HTTP service, missing path for team_service id {team_service.id}')
                     return
                 path = toks[2]
-                is_up, status = check_html(host=host, path=path)
+                is_up, status = check_http(host=host, path=path)
+            elif service_type == 'https':
+                if len(toks) < 3:
+                    logging.error(f'Invalid URI format for HTTP service, missing path for team_service id {team_service.id}')
+                    return
+                path = toks[2]
+                is_up, status = check_https(host=host, path=path)
             elif service_type == 'ssh':
                 is_up, status = check_ssh(host=host, username=team_service.username, password=team_service.password)
             elif service_type == 'tftp':
@@ -174,10 +190,17 @@ class Command(BaseCommand):
 
             TeamService.objects.filter(id=team_service.id).update(newest_check=check)
 
+            team = Team.objects.filter(id=team_service.team).first()
+            team.max_score += 1
+
             if is_up:
                 logging.info(f'Service {service_type} on {host} is up.')
+                team.score += 1
             else:
                 logging.info(f'Service {service_type} on {host} is down: {status}')
+
+            team.save()
+            
         except Exception as e:
             logging.error(f'Error checking service {service_type} on {host}: {e}')
         finally:
