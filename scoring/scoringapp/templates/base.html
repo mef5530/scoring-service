@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+    <title>ScoreMax</title>
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <style>
+        body {
+            background-image: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic.independent.co.uk%2F2023%2F08%2F02%2F09%2Fnewspress-collage-ji3ryiocq-1690914726763.jpg&f=1&nofb=1&ipt=4ed4dbc2986b3d458023c7443c3a887f0e7f9d3728e42aaa2ddf0bceca3df310&ipo=images');
+        }
+        
+        table tr td, table tr th{
+            background-color: rgba(0,0,0, 0.5) !important;
+            color: white !important;
+        }
+
+        h1 {
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <ul class="nav bg-info">
+            <li class="nav-item">
+                <a class="nav-link link-light" href="#">ScoreMax</a>
+            </li>
+        </ul>
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>

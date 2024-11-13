@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mr-5 p-5">
+    <h1>Zoo: Free the animals!</h1>
+    <table class="table table-bordered border-danger">
+        <thead>
+            <tr>
+                <th scope="col">
+                    Service / Team
+                    <a href="{% url 'team-create' %}" class="btn btn-secondary">create</a>
+                </th>
+                {% for team in teams %}
+                <th scope="row">
+                    {{ team.name }}
+                    <a href="{% url 'team-update' pk=team.id %}" class="btn btn-secondary">edit</a>
+                    <a href="{% url 'team-delete' pk=team.id %}" class="btn btn-danger">delete</a>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for service, team_services in services %}
+            <tr>
+                <th scope="row">
+                    {{ service.name }}
+                    <a href="{% url 'service-update' pk=service.id %}" class="btn btn-secondary">edit</a>
+                    <a href="{% url 'service-delete' pk=service.id %}" class="btn btn-danger">delete</a>
+                </th>
+                {% for team_service in team_services %}
+                    {% if team_service and team_service.newest_check %}
+                        {% if team_service.newest_check.is_up %}
+                            <td style="background-color: rgba(0,255,0, 0.5) !important;">
+                                <span class="badge badge-success" style="color: black !important;">Up</span>
+                                <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
+                                <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
+                            </td>
+                        {% else %}
+                            <td style="background-color: rgba(255,0,0, 0.5) !important;">
+                                <span class="badge badge-danger" style="color: black !important;">Down: {{ team_service.newest_check.status }}</span>
+                                <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
+                                <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
+                            </td>
+                        {% endif %}
+                    {% else %}
+                        <td style="background-color: rgba(255,255,0, 0.5) !important;">
+                            <div class="badge badge-warning" style="color: black !important;">N/A</div>
+                            <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
+                            <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
+                        </td>
+                    {% endif %}
+                    
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <th scope="row">
+                    <h2>Score</h2>
+                </th>
+                {% for team in teams %}
+                <td>
+                    <h2>{{ team.score }}/{{ team.max_score }}</h2>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th scope="row">
+                    <a href="{% url 'service-create' %}" class="btn btn-secondary">create</a>
+                </th>
+                {% for team in teams %}
+                <td>
+                    <a href="{% url 'team-service-create' %}" class="btn btn-secondary">create</a>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
