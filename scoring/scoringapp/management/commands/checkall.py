@@ -31,7 +31,7 @@ def check_http(host, path, timeout=2) -> (bool, str):
 
 def check_https(host, path, timeout=2) -> (bool, str):
     try:
-        response = requests.get(f'https://{host}/{path}', timeout=timeout)
+        response = requests.get(f'https://{host}/{path}', timeout=timeout, verify=False)
         if response.status_code == 200 or response.status_code == 404 or response.status_code == 302:
             return (True, 'up')
         else:
