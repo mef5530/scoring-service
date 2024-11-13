@@ -190,7 +190,7 @@ class Command(BaseCommand):
 
             TeamService.objects.filter(id=team_service.id).update(newest_check=check)
 
-            team = Team.objects.filter(id=team_service.team).first()
+            team = Team.objects.filter(id=team_service.team.id).first()
             team.max_score += 1
 
             if is_up:
