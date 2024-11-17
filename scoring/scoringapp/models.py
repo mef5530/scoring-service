@@ -14,9 +14,15 @@ class Team(models.Model):
     score = models.IntegerField(default=0)
     max_score = models.IntegerField(default=0)
 
+    def repr(self):
+        return f'Team({self.name})'
+
 class Service(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=25)
+
+    def repr(self):
+        return f'Service({self.name})'
 
 class TeamService(models.Model):
     id = models.AutoField(primary_key=True)
