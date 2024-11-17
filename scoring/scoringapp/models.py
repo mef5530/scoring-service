@@ -32,6 +32,7 @@ class TeamService(models.Model):
     username = models.CharField(max_length=255, blank=True)
     password = models.CharField(max_length=255, blank=True)
     newest_check = models.ForeignKey('Check', null=True, on_delete=models.SET_NULL)
+    down_checks = models.IntegerField(default=0)
 
 class Check(models.Model):
     id = models.AutoField(primary_key=True)

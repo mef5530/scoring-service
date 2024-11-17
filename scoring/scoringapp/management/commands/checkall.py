@@ -192,7 +192,8 @@ class Command(BaseCommand):
             )
             check.save()
 
-            TeamService.objects.filter(id=team_service.id).update(newest_check=check)
+            cur_team_service = TeamService.objects.filter(id=team_service.id).first()
+            cur_team_service.newest_check = check
 
             team = Team.objects.filter(id=team_service.team.id).first()
             team.max_score += 1
@@ -200,10 +201,15 @@ class Command(BaseCommand):
             if is_up:
                 logging.info(f'Service {service_type} on {host} is up.')
                 team.score += 1
+                cur_team_service.down_checks = 0
             else:
                 logging.info(f'Service {service_type} on {host} is down: {status}')
+                cur_team_service.down_checks += 1
+                if cur_team_service.down_checks < 5:
+                    team.score += 1
 
             team.save()
+            cur_team_service.save()
             
         except Exception as e:
             logging.error(f'Error checking service {service_type} on {host}: {e}')

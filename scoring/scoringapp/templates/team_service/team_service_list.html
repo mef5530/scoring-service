@@ -38,11 +38,19 @@
                                 <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
                             </td>
                         {% else %}
-                            <td style="background-color: rgba(255,0,0, 0.5) !important;">
-                                <p>Down: {{ team_service.newest_check.status }}</p>
-                                <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
-                                <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
-                            </td>
+                            {% if team_service.down_checks >= 5 %}
+                                <td style="background-color: rgba(255,0,0, 0.5) !important;">
+                                    <p>Down: {{ team_service.newest_check.status }}</p>
+                                    <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
+                                    <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
+                                </td>
+                            {% else %}
+                                <td style="background-color: rgba(255,255,0, 0.5) !important;">
+                                    <p>Down for {{ team_service.down_checks }} checks: {{ team_service.newest_check.status }}</p>
+                                    <a href="{% url 'team-service-update' pk=team_service.id %}" class="btn btn-secondary">edit</a>
+                                    <a href="{% url 'team-service-delete' pk=team_service.id %}" class="btn btn-danger">delete</a>
+                                </td>
+                            {% endif %}
                         {% endif %}
                     {% else %}
                         <td style="background-color: rgba(255,255,0, 0.5) !important;">

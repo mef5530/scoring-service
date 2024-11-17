@@ -35,7 +35,7 @@ class TeamServiceListView(ListView):
 
 class TeamServiceCreateView(CreateView):
     model = TeamService
-    fields = ['id', 'team', 'service', 'uri', 'username', 'password']
+    fields = ['id', 'team', 'service', 'uri', 'username', 'password', 'down_checks']
     template_name = 'team_service/team_service_form.html'
 
     def get_success_url(self):
@@ -43,7 +43,7 @@ class TeamServiceCreateView(CreateView):
 
 class TeamServiceUpdateView(UpdateView):
     model = TeamService
-    fields = ['id', 'team', 'service', 'uri', 'username', 'password']
+    fields = ['id', 'team', 'service', 'uri', 'username', 'password', 'down_checks']
     template_name = 'team_service/team_service_form.html'
 
     def get_success_url(self):
