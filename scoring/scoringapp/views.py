@@ -81,7 +81,7 @@ class ServiceDeleteView(DeleteView):
 
 class TeamCreateView(CreateView):
     model = Team
-    fields = ['id', 'name', 'score']
+    fields = ['id', 'name', 'score', 'max_score']
     template_name = 'team/team_form.html'
 
     def get_success_url(self):
@@ -89,7 +89,7 @@ class TeamCreateView(CreateView):
 
 class TeamUpdateView(UpdateView):
     model = Team
-    fields = ['id', 'name', 'score']
+    fields = ['id', 'name', 'score', 'max_score']
     template_name = 'team/team_form.html'
 
     def get_success_url(self):
