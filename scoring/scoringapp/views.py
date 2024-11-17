@@ -5,7 +5,7 @@ from django.views.generic import TemplateView, ListView, CreateView, UpdateView,
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 
-from .models import Service, Team, Competition, TeamService
+from .models import Service, Team, Competition, TeamService, ScheduleLock
 from .serializers import TeamSerializer, ServiceSerializer, TeamServiceSerializer
 
 class TeamServiceListView(ListView):
@@ -119,6 +119,9 @@ def start_comp(request):
     comp = Competition.objects.get_or_create(id=1)[0]
     comp.paused = False
     comp.save()
+    schedule_lock = ScheduleLock.objects.all().filter(id=1).first()
+    schedule_lock.locked = False
+    schedule_lock.save()
     return JsonResponse({'status': 'success'})
 
 @require_POST

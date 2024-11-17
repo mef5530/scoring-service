@@ -1,5 +1,9 @@
 from django.db import models
 
+class ScheduleLock(models.Model):
+    id = models.AutoField(primary_key=True)
+    locked = models.BooleanField(default=False)
+
 class Competition(models.Model):
     id = models.AutoField(primary_key=True)
     paused = models.BooleanField(default=True)
