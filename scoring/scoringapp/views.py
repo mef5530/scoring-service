@@ -33,6 +33,31 @@ class TeamServiceListView(ListView):
 
         return context
 
+class TeamServiceListViewMin(ListView):
+    template_name = 'team_service/team_service_list_min.html'
+    context_object_name = 'services'
+    model = Service
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+
+        context = {
+            'teams': [],
+            'services': [],
+            'status': Competition.objects.first(),
+        }
+
+        context['teams'] = list(Team.objects.all())
+
+        for service in Service.objects.all():
+            this_service = []
+            for team in context['teams']:
+                team_service = TeamService.objects.filter(team=team, service=service).first()
+                this_service.append(team_service)
+            context['services'].append((service, this_service))
+
+        return context
+
 class TeamServiceCreateView(CreateView):
     model = TeamService
     fields = ['id', 'team', 'service', 'uri', 'username', 'password', 'down_checks']

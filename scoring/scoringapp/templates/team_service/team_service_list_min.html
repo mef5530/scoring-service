@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mr-5 p-5">
+    <h1>Zoo: Free the animals!</h1>
+    <table class="table table-bordered border-danger">
+        <thead>
+            <tr>
+                <th scope="col" class="col-1">
+                    Service / Team
+                </th>
+                {% for team in teams %}
+                <th scope="col" class="col-5">
+                    {{ team.name }}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for service, team_services in services %}
+            <tr>
+                <th scope="row">
+                    {{ service.name }}
+                </th>
+                {% for team_service in team_services %}
+                    {% if team_service and team_service.newest_check %}
+                        {% if team_service.newest_check.is_up %}
+                            <td style="background-color: rgba(0,255,0, 0.5) !important;">
+                                <p>Up</p>
+                            </td>
+                        {% else %}
+                            {% if team_service.down_checks >= 5 %}
+                                <td style="background-color: rgba(255,0,0, 0.5) !important;">
+                                    <p>Down: {{ team_service.newest_check.status }}</p>
+                                </td>
+                            {% else %}
+                                <td style="background-color: rgba(255,255,0, 0.5) !important;">
+                                    <p>Down for {{ team_service.down_checks }} checks: {{ team_service.newest_check.status }}</p>
+                                </td>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <td style="background-color: rgba(255,255,0, 0.5) !important;">
+                            <p>N/A</p>
+                        </td>
+                    {% endif %}
+                    
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <th scope="row">
+                    <h2>Score</h2>
+                </th>
+                {% for team in teams %}
+                <td>
+                    <h2>{{ team.score }}/{{ team.max_score }}</h2>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    setInterval(function(){
+        window.location.reload();
+    }, 20000);
+</script>
+{%endblock%}

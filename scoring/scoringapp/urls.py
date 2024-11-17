@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import TeamServiceListView, TeamViewSet, ServiceViewSet, TeamServiceViewSet, TeamServiceCreateView, TeamServiceUpdateView, TeamUpdateView, TeamCreateView, ServiceUpdateView, ServiceCreateView, TeamServiceDeleteView, ServiceDeleteView, TeamDeleteView, start_comp, stop_comp
+from .views import TeamServiceListView, TeamServiceListViewMin, TeamViewSet, ServiceViewSet, TeamServiceViewSet, TeamServiceCreateView, TeamServiceUpdateView, TeamUpdateView, TeamCreateView, ServiceUpdateView, ServiceCreateView, TeamServiceDeleteView, ServiceDeleteView, TeamDeleteView, start_comp, stop_comp
 
 router = DefaultRouter()
 router.register(r'teams', TeamViewSet)
@@ -9,6 +9,7 @@ router.register(r'team-services', TeamServiceViewSet)
 
 urlpatterns = [
     path('team_services/', TeamServiceListView.as_view(), name='team-services'),
+    path('team_services_min/', TeamServiceListViewMin.as_view(), name='team-services-min'),
     path('comp/', include(router.urls)),
     path('team_service/create/', TeamServiceCreateView.as_view(), name='team-service-create'),
     path('team_service/update/<int:pk>/', TeamServiceUpdateView.as_view(), name='team-service-update'),
