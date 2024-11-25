@@ -54,6 +54,16 @@ class Command(BaseCommand):
         except Exception as e:
             return (False, f'request failed with: {e}')
 
+    def check_koth(self, host, path, match_text, timeout=2) -> (bool, str):
+        try:
+            response = requests.get(f'http://{host}/{path}', timeout=timeout)
+            if response.status_code == 200 and match_text in response.text:
+                return (True, 'up')
+            else:
+                return (False, f'response code = {response.status_code}, body = {response.text}')
+        except Exception as e:
+            return (False, f'request failed with: {e}')
+
     def check_https(self, host, path, timeout=2) -> (bool, str):
         try:
             response = requests.get(f'https://{host}/{path}', timeout=timeout, verify=False)
@@ -168,6 +178,13 @@ class Command(BaseCommand):
                     return
                 path = toks[2]
                 is_up, status = self.check_https(host=host, path=path)
+            elif service_type == 'koth':
+                if len(toks) < 4:
+                    logging.error(f'Invalid URI format for HTTP service, missing path for team_service id {team_service.id}')
+                    return
+                path = toks[2]
+                match_text = toks[3]
+                is_up, status = self.check_koth(host=host, path=path, match_text=match_text)
             elif service_type == 'ssh':
                 is_up, status = self.check_ssh(host=host, username=team_service.username, password=team_service.password)
             elif service_type == 'tftp':
@@ -194,8 +211,8 @@ class Command(BaseCommand):
 
             cur_team_service = TeamService.objects.filter(id=team_service.id).first()
             cur_team_service.newest_check = check
-
             team = Team.objects.filter(id=team_service.team.id).first()
+
             team.max_score += 1
 
             if is_up:
